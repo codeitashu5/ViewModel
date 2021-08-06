@@ -16,6 +16,7 @@
 
 package com.example.android.unscramble.ui.game
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -137,10 +138,21 @@ class GameFragment : Fragment() {
     }
 
 
-    //function to create dialog
 
+    //function to create dialog
     private fun showAlertDialog(){
         MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.congratulations)
+            .setMessage(getString(R.string.you_scored,viewModel.score))
+            .setCancelable(false)
+            .setNegativeButton(getString(R.string.exit)) { _,_->
+                exitGame()
+            }
+            .setPositiveButton(R.string.play_again){
+                _,_->
+                restartGame()
+            }
+            .show()
 
 
     }
