@@ -24,6 +24,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.android.unscramble.R
 import com.example.android.unscramble.databinding.GameFragmentBinding
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 /**
  * Fragment where the game is played, contains the game logic.
@@ -31,10 +32,7 @@ import com.example.android.unscramble.databinding.GameFragmentBinding
 class GameFragment : Fragment() {
 
     //this is property delegation
-    private  val viewModel : GameViewModel by viewModels()
-
-
-
+    private val viewModel: GameViewModel by viewModels()
 
     // Binding object instance with access to the views in the game_fragment.xml layout
     private lateinit var binding: GameFragmentBinding
@@ -44,11 +42,16 @@ class GameFragment : Fragment() {
     // first fragment
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         // Inflate the layout XML file and return a binding object instance
-        binding = GameFragmentBinding.inflate(inflater, container, false)
+        binding = GameFragmentBinding.inflate(
+            inflater,
+            container,
+            false
+        )
+
         return binding.root
     }
 
@@ -58,11 +61,14 @@ class GameFragment : Fragment() {
         // Setup a click listener for the Submit and Skip buttons.
         binding.submit.setOnClickListener { onSubmitWord() }
         binding.skip.setOnClickListener { onSkipWord() }
-        // Update the UI
-        updateNextWordOnScreen()
+        // Update the UI for the initial value for currentScrambled word
         binding.score.text = getString(R.string.score, 0)
         binding.wordCount.text = getString(
-                R.string.word_count, 0, MAX_NO_OF_WORDS)
+            R.string.word_count, 0, MAX_NO_OF_WORDS
+        )
+
+
+        updateNextWordOnScreen()
     }
 
     /*
@@ -124,5 +130,18 @@ class GameFragment : Fragment() {
      */
     private fun updateNextWordOnScreen() {
         binding.textViewUnscrambledWord.text = viewModel.currentScrambledWord
+        binding.wordCount.text = getString(
+            R.string.word_count, viewModel.currentWordcount,
+            MAX_NO_OF_WORDS
+        )
+    }
+
+
+    //function to create dialog
+
+    private fun showAlertDialog(){
+        MaterialAlertDialogBuilder(requireContext())
+
+
     }
 }
