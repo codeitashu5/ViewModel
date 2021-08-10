@@ -69,54 +69,63 @@ class GameFragment : Fragment() {
         )
 
 
-        updateNextWordOnScreen()
-    }
-
-    /*
-    * Checks the user's word, and updates the score accordingly.
-    * Displays the next scrambled word.
-    */
-    private fun onSubmitWord() {
+        viewModel.currentScrambledWord.observe(viewLifecycleOwner,{ newWord->
+            binding.textViewUnscrambledWord.text = newWord
+        })
 
     }
 
-    /*
-     * Skips the current word without changing the score.
-     * Increases the word count.
-     */
+     //Checks the user's word, and updates the score accordingly.
+     //Displays the next scrambled word.
+      private fun onSubmitWord() {
+        val playerWord = binding.textInputEditText.text.toString()
+        if(viewModel.isUserWordCorrect(playerWord)){
+            setErrorTextField(false)
+
+            viewModel.increaseScore()
+            if (!viewModel.nextWord()) {
+                showAlertDialog()
+            }
+        }
+        else{
+            setErrorTextField(true)
+        }
+    }
+
+     //Skips the current word without changing the score.
+    //Increases the word count.
     private fun onSkipWord() {
 
+        if(viewModel.nextWord()){
+            setErrorTextField(false)
+
+        }else{
+            showAlertDialog()
+        }
+
     }
 
-    /*
-     * Gets a random word for the list of words and shuffles the letters in it.
-     */
+     //Gets a random word for the list of words and shuffles the letters in it.
     private fun getNextScrambledWord(): String {
         val tempWord = allWordsList.random().toCharArray()
         tempWord.shuffle()
         return String(tempWord)
     }
 
-    /*
-     * Re-initializes the data in the ViewModel and updates the views with the new data, to
-     * restart the game.
-     */
-    private fun restartGame() {
+     //restart the game.
+     private fun restartGame() {
         setErrorTextField(false)
-        updateNextWordOnScreen()
+        viewModel.reInitialize()
+        setErrorTextField(false)
     }
 
-    /*
-     * Exits the game.
-     */
+    //Exits the game.
     private fun exitGame() {
         activity?.finish()
     }
 
-    /*
-    * Sets and resets the text field error status.
-    */
-    private fun setErrorTextField(error: Boolean) {
+    //Sets and resets the text field error status.
+     private fun setErrorTextField(error: Boolean) {
         if (error) {
             binding.textField.isErrorEnabled = true
             binding.textField.error = getString(R.string.try_again)
@@ -126,21 +135,10 @@ class GameFragment : Fragment() {
         }
     }
 
-    /*
-     * Displays the next scrambled word on screen.
-     */
-    private fun updateNextWordOnScreen() {
-        binding.textViewUnscrambledWord.text = viewModel.currentScrambledWord
-        binding.wordCount.text = getString(
-            R.string.word_count, viewModel.currentWordcount,
-            MAX_NO_OF_WORDS
-        )
-    }
-
 
 
     //function to create dialog
-    private fun showAlertDialog(){
+     private fun showAlertDialog(){
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.congratulations)
             .setMessage(getString(R.string.you_scored,viewModel.score))
@@ -148,12 +146,10 @@ class GameFragment : Fragment() {
             .setNegativeButton(getString(R.string.exit)) { _,_->
                 exitGame()
             }
-            .setPositiveButton(R.string.play_again){
-                _,_->
+            .setPositiveButton(R.string.play_again){ _,_->
                 restartGame()
             }
             .show()
-
-
     }
+
 }

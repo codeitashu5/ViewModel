@@ -1,5 +1,7 @@
 package com.example.android.unscramble.ui.game
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class GameViewModel : ViewModel() {
@@ -7,13 +9,14 @@ class GameViewModel : ViewModel() {
 
     private var _score = 0
     private var _currentWordcount = 0
-    private lateinit var _currentScrambledWord : String
-
+    private  val _currentScrambledWord = MutableLiveData<String>()
 
     //backing these property
-    public val currentWordcount : Int get() = _currentWordcount
-    public val score : Int get() = _score
-    public val currentScrambledWord : String get() = _currentScrambledWord
+     val currentWordcount : Int get() = _currentWordcount
+     val score : Int get() = _score
+     val currentScrambledWord : LiveData<String> get() = _currentScrambledWord
+
+
 
 
 
@@ -26,7 +29,8 @@ class GameViewModel : ViewModel() {
     //this will provide the initial value to the current scrambled word
     init{
         Log.d("GameFragment","ViewModel Created")
-        getNextWord()
+
+          getNextWord()
     }
 
 
@@ -47,7 +51,7 @@ class GameViewModel : ViewModel() {
         }
         else{
            wordList.add(currentWord)
-          _currentScrambledWord = String(tempWord)
+          _currentScrambledWord.value = String(tempWord)
             //it is the count of the word
           _currentWordcount++
         }
@@ -62,6 +66,32 @@ class GameViewModel : ViewModel() {
         }
         else
             return false
+    }
+
+    //increase score function
+    fun increaseScore(){
+        _score+= SCORE_INCREASE
+    }
+
+
+    //validate the word in the edit text
+    fun isUserWordCorrect(word:String):Boolean{
+        if(word.equals(currentWord,false)){
+            increaseScore()
+            return true
+        }
+        else{
+            return false
+        }
+    }
+
+    //function to re-initialize data
+
+    fun reInitialize(){
+         _score = 0
+        _currentWordcount = 0
+        wordList.clear()
+        getNextWord()
     }
 
 }
