@@ -7,17 +7,14 @@ import androidx.lifecycle.ViewModel
 class GameViewModel : ViewModel() {
 
 
-    private var _score = 0
-    private var _currentWordcount = 0
+    private var _score = MutableLiveData(0)
+    private var _currentWordcount = MutableLiveData(0)
     private  val _currentScrambledWord = MutableLiveData<String>()
 
     //backing these property
-     val currentWordcount : Int get() = _currentWordcount
-     val score : Int get() = _score
+     val currentWordcount : LiveData<Int> get() = _currentWordcount
+     val score : LiveData<Int> get() = _score
      val currentScrambledWord : LiveData<String> get() = _currentScrambledWord
-
-
-
 
 
     //creating variable for the game
@@ -29,13 +26,12 @@ class GameViewModel : ViewModel() {
     //this will provide the initial value to the current scrambled word
     init{
         Log.d("GameFragment","ViewModel Created")
-
-          getNextWord()
+        getNextWord()
     }
 
 
 
-    private fun getNextWord(){
+     private  fun getNextWord(){
         //the random function gets you the random list element
         currentWord = allWordsList.random()
         //converting into char array and shuffling the array to generate the scrambled word
@@ -53,14 +49,14 @@ class GameViewModel : ViewModel() {
            wordList.add(currentWord)
           _currentScrambledWord.value = String(tempWord)
             //it is the count of the word
-          _currentWordcount++
+            _currentWordcount.value = _currentWordcount.value!! + 1
         }
     }
 
 
    //function to check whether the game is ended or not
     fun nextWord():Boolean{
-        if(currentWordcount< MAX_NO_OF_WORDS){
+        if(currentWordcount.value!!< MAX_NO_OF_WORDS){
             getNextWord()
             return true
         }
@@ -70,7 +66,7 @@ class GameViewModel : ViewModel() {
 
     //increase score function
     fun increaseScore(){
-        _score+= SCORE_INCREASE
+        _score.value = _score.value!! + SCORE_INCREASE
     }
 
 
@@ -88,8 +84,8 @@ class GameViewModel : ViewModel() {
     //function to re-initialize data
 
     fun reInitialize(){
-         _score = 0
-        _currentWordcount = 0
+         _score.value = 0
+        _currentWordcount.value = 0
         wordList.clear()
         getNextWord()
     }

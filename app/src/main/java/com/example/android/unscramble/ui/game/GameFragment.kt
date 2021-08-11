@@ -63,14 +63,19 @@ class GameFragment : Fragment() {
         binding.submit.setOnClickListener { onSubmitWord() }
         binding.skip.setOnClickListener { onSkipWord() }
         // Update the UI for the initial value for currentScrambled word
-        binding.score.text = getString(R.string.score, 0)
-        binding.wordCount.text = getString(
-            R.string.word_count, 0, MAX_NO_OF_WORDS
-        )
 
-
+        //observer fro currentScrambledWord
         viewModel.currentScrambledWord.observe(viewLifecycleOwner,{ newWord->
             binding.textViewUnscrambledWord.text = newWord
+        })
+
+        //observer for score
+        viewModel.score.observe(viewLifecycleOwner,{ newScore->
+            binding.score.text = getString(R.string.score,newScore)
+        })
+        //observer for currentWordCount
+        viewModel.currentWordcount.observe(viewLifecycleOwner,{ newCount->
+            binding.wordCount.text = getString(R.string.word_count,newCount,MAX_NO_OF_WORDS)
         })
 
     }
@@ -80,9 +85,6 @@ class GameFragment : Fragment() {
       private fun onSubmitWord() {
         val playerWord = binding.textInputEditText.text.toString()
         if(viewModel.isUserWordCorrect(playerWord)){
-            setErrorTextField(false)
-
-            viewModel.increaseScore()
             if (!viewModel.nextWord()) {
                 showAlertDialog()
             }
@@ -95,21 +97,11 @@ class GameFragment : Fragment() {
      //Skips the current word without changing the score.
     //Increases the word count.
     private fun onSkipWord() {
-
         if(viewModel.nextWord()){
             setErrorTextField(false)
-
         }else{
             showAlertDialog()
         }
-
-    }
-
-     //Gets a random word for the list of words and shuffles the letters in it.
-    private fun getNextScrambledWord(): String {
-        val tempWord = allWordsList.random().toCharArray()
-        tempWord.shuffle()
-        return String(tempWord)
     }
 
      //restart the game.
@@ -141,7 +133,7 @@ class GameFragment : Fragment() {
      private fun showAlertDialog(){
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.congratulations)
-            .setMessage(getString(R.string.you_scored,viewModel.score))
+            .setMessage(getString(R.string.you_scored,viewModel.score.value))
             .setCancelable(false)
             .setNegativeButton(getString(R.string.exit)) { _,_->
                 exitGame()
